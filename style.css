@@ -1,0 +1,447 @@
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: #f5f5f7;
+  color: #222;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* タイトル */
+#title-bar {
+  background: linear-gradient(135deg, #d2ecff, #b8e0ff);
+  border-bottom: 2px solid #0d6ea8;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #0a5085;
+  letter-spacing: 1px;
+}
+
+/* ========== ヘッダー ========== */
+#header {
+  background: #ffffff;
+  border-bottom: 2px solid #0d6ea8;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.hrow {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+}
+
+.hrow1 {
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.spins-block { display: flex; align-items: baseline; gap: 2px; }
+.spins-current { font-size: 20px; font-weight: bold; color: #0d6ea8; }
+.spins-total   { font-size: 16px; font-weight: bold; color: #666; }
+.spins-unit    { font-size: 11px; color: #999; }
+.spins-sep     { font-size: 11px; color: #aaa; margin: 0 3px; }
+
+#mode-badge {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: #f2f2f4;
+  border: 1px solid #ddd;
+  color: #666;
+  transition: all 0.3s;
+}
+#mode-badge.jitan    { background: #e0f7fa; border-color: #26a6c9; color: #0d6a80; }
+#mode-badge.rush     { background: #fff4d6; border-color: #c9a227; color: #8a6d16; }
+#mode-badge.yuutaimu { background: #e6f9ec; border-color: #2e9e5b; color: #1f6b3d; }
+
+.esup-block { text-align: right; min-width: 60px; }
+.esup-label { font-size: 10px; color: #999; }
+.esup-value { font-size: 18px; font-weight: bold; color: #0d6ea8; }
+
+.hrow2 {
+  justify-content: space-around;
+  border-bottom: 1px solid #eee;
+  padding: 5px 12px;
+}
+
+.money-block { display: flex; align-items: baseline; gap: 4px; }
+.money-label { font-size: 10px; color: #999; }
+.money-value { font-size: 19px; font-weight: bold; }
+.money-value.gold  { color: #c9a227; }
+.money-value.red   { color: #d24141; }
+.money-value.green { color: #2e9e5b; }
+.money-unit  { font-size: 11px; color: #999; }
+
+.hrow3 {
+  flex-direction: column;
+  padding: 4px 12px 6px;
+  gap: 3px;
+}
+
+.hrow3-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.hrow3-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.hrow3-normal-line {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.hrow3-stats {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.hit-item {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.hit-label2 { font-size: 9px; color: #999; }
+.hit-count  { font-size: 12px; font-weight: bold; color: #333; }
+.hit-prob   { font-size: 9px; color: #aaa; }
+.rush-entry { font-size: 9px; color: #0f8a99; }
+
+.total-hit-block { display: flex; align-items: baseline; gap: 3px; }
+.total-hit-count { font-size: 12px; font-weight: bold; color: #c9a227; }
+
+.fee-block { font-size: 9px; color: #aaa; white-space: nowrap; }
+
+/* ========== メイン画面 ========== */
+#main-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 20px;
+  min-height: 380px;
+}
+
+.screen {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* STARTボタン */
+.btn-start {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4fc3f7, #0d6ea8);
+  border: 5px solid #d2ecff;
+  font-size: 26px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(13,110,168,0.25), 0 4px 12px rgba(0,0,0,0.12);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-start:active { transform: scale(0.94); }
+
+/* アクションボタン */
+.btn-action {
+  width: 100%;
+  max-width: 300px;
+  padding: 15px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d6ea8, #0a5085);
+  border: 2px solid #a8d8ff;
+  font-size: 17px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: opacity 0.1s, transform 0.1s;
+}
+.btn-action:active { opacity: 0.8; transform: scale(0.97); }
+
+/* サブボタン */
+.btn-sub {
+  font-size: 14px;
+  color: #666;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+.btn-sub:active { opacity: 0.7; }
+
+/* 確率表示 */
+.prob-hint { font-size: 11px; color: #999; }
+
+/* 結果テキスト */
+.result-main {
+  font-size: 34px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.result-main.win    { color: #c9a227; }
+.result-main.lose   { color: #aaa; }
+
+.result-balls { font-size: 30px; font-weight: bold; color: #c9a227; }
+.result-sub   { font-size: 14px; color: #999; }
+
+/* RUSH(確変/時短/遊タイム) */
+.rush-title {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.3;
+  text-align: center;
+  color: #c9a227;
+}
+
+.cutin-flavor {
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  color: #0d6ea8;
+}
+
+.rush-sub { font-size: 16px; color: #666; }
+.rush-sub span { font-size: 32px; font-weight: bold; color: #0f8a99; }
+
+.chain-label {
+  font-size: 15px;
+  font-weight: bold;
+  color: #0f8a99;
+  letter-spacing: 1px;
+}
+
+/* 振り分けボックス */
+.vibun-box {
+  width: 100%;
+  max-width: 300px;
+  background: #fbfbfc;
+  border-radius: 12px;
+  border: 2px solid #eee;
+  padding: 18px;
+  text-align: center;
+}
+.vibun-box.rush-box   { border-color: #0d6ea8; background: #eef8ff; }
+
+.bonus-main {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.bonus-main.premium  { color: #c9a227; }
+.bonus-main.standard { color: #0f8a99; }
+
+.bonus-sub { font-size: 13px; color: #888; margin-top: 5px; }
+
+/* 一括回転 */
+.spin-rate-block {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.spin-rate-label { font-size: 11px; color: #999; }
+.spin-rate-select {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.auto-spin-btns { display: flex; gap: 12px; margin-top: 4px; }
+
+.btn-auto {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+  max-width: 200px;
+}
+.btn-auto:active { background: #f2f2f2; transform: scale(0.96); }
+
+.auto-spin-wrap  { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.spin-cost-hint  { font-size: 9px; color: #aaa; }
+
+.btn-taiten {
+  font-size: 12px;
+  color: #999;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px 18px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.btn-taiten:active { opacity: 0.7; }
+
+/* RUSH中の3種回転ボタン */
+.rush-spin-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  width: 100%;
+  max-width: 320px;
+}
+.btn-rush-spin {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+}
+.btn-rush-spin:active { background: #f2f2f2; transform: scale(0.96); }
+.btn-rush-spin.skip {
+  background: linear-gradient(135deg, #0d6ea8, #0a5085);
+  border-color: #a8d8ff;
+  color: #fff;
+}
+.btn-rush-spin:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn-rush-spin.skip:disabled {
+  background: #eee;
+  border-color: #ddd;
+  color: #aaa;
+}
+
+/* ========== リザルト ========== */
+.rush-result-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #c9a227;
+  letter-spacing: 2px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+}
+
+.rush-result-box {
+  width: 100%;
+  max-width: 300px;
+  background: #fbfbfc;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+.result-row.highlight { background: rgba(201,162,39,0.08); border-radius: 6px; padding: 6px 4px; }
+
+.rr-label { font-size: 13px; color: #888; }
+.rr-val   { font-size: 15px; font-weight: bold; color: #333; }
+.rr-val.gold { color: #c9a227; font-size: 18px; }
+
+.result-hr { border: none; border-top: 1px solid #eee; margin: 8px 0; }
+
+.rr-section {
+  font-size: 10px;
+  color: #999;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+/* ========== 通算確変成績 ========== */
+#rush-stats-bar {
+  background: #fafafa;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 5px 12px;
+  flex-shrink: 0;
+}
+.rsb-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 3px;
+}
+.rsb-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #0f8a99;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.rsb-item { display: flex; align-items: baseline; gap: 3px; }
+.rsb-label { font-size: 9px; color: #999; }
+.rsb-val   { font-size: 12px; font-weight: bold; color: #333; }
+.rsb-prob  { font-size: 9px; color: #999; }
+
+/* ========== ログ ========== */
+#log-area {
+  background: #fafafa;
+  border-top: 1px solid #eee;
+  max-height: 140px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+#log-title { font-size: 10px; color: #aaa; padding: 5px 12px 2px; letter-spacing: 1px; }
+.log-item {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #888;
+}
+.log-item.win   { color: #b5872a; }
+.log-item.rush  { color: #0d6ea8; }
