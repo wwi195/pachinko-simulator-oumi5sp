@@ -47,3 +47,17 @@ test('BONUS_NOMINAL is 1500 and BONUS_ACTUAL is 1400 (10R x 10カウント)', ()
   assert.equal(logic.BONUS_NOMINAL, 1500);
   assert.equal(logic.BONUS_ACTUAL, 1400);
 });
+
+test('P_ODD is 0.54; rollPattern returns odd under 54%, even otherwise', () => {
+  assert.equal(logic.P_ODD, 0.54);
+  assert.equal(withMockRandom([0],          () => logic.rollPattern()), 'odd');
+  assert.equal(withMockRandom([logic.P_ODD], () => logic.rollPattern()), 'even');
+  assert.equal(withMockRandom([0.9],         () => logic.rollPattern()), 'even');
+});
+
+test('JITAN_SHORT is 100, JITAN_LONG is 200; decideJitanLength picks by origin', () => {
+  assert.equal(logic.JITAN_SHORT, 100);
+  assert.equal(logic.JITAN_LONG, 200);
+  assert.equal(logic.decideJitanLength(false), 100);
+  assert.equal(logic.decideJitanLength(true), 200);
+});

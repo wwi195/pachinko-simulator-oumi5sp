@@ -21,6 +21,19 @@ function spinRush() {
 const BONUS_NOMINAL = 1500;
 const BONUS_ACTUAL = 1400;
 
+const P_ODD = 0.54;
+
+function rollPattern() {
+  return Math.random() < P_ODD ? 'odd' : 'even';
+}
+
+const JITAN_SHORT = 100;
+const JITAN_LONG = 200;
+
+function decideJitanLength(cameFromJitanLike) {
+  return cameFromJitanLike ? JITAN_LONG : JITAN_SHORT;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SPIN_RATE_OPTIONS,
@@ -32,5 +45,10 @@ if (typeof module !== 'undefined' && module.exports) {
     spinRush,
     BONUS_NOMINAL,
     BONUS_ACTUAL,
+    P_ODD,
+    rollPattern,
+    JITAN_SHORT,
+    JITAN_LONG,
+    decideJitanLength,
   };
 }
