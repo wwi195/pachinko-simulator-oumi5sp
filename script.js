@@ -159,3 +159,66 @@ function enterYuutaimu() {
 function handleYuutaimuCutinContinue() {
   setState('yuutaimu_idle');
 }
+
+// ---- 時短中ハンドラ ----
+
+function runJitanSpin(opts = {}) {
+  game.totalSpins++;
+  game.currentSpins++;
+  game.lowProbSpinCount++;
+  consumeSpinCost();
+  const { outcome, remaining } = applySupportSpin(game.jitanRemaining);
+  game.jitanRemaining = remaining;
+
+  if (outcome === 'hit') {
+    resolveHit('jitan');
+    return true;
+  }
+  if (outcome === 'end') {
+    endSession();
+    return true;
+  }
+  if (!opts.silent) {
+    addLog(`電サポ残り${remaining}回`);
+    setState('jitan_miss');
+    return true;
+  }
+  return false;
+}
+
+function handleJitanSpin() {
+  runJitanSpin();
+}
+
+function handleJitanSpin10() {
+  for (let i = 0; i < 10; i++) {
+    if (runJitanSpin({ silent: true })) return;
+  }
+  setState('jitan_idle');
+}
+
+function handleJitanSkip() {
+  for (;;) {
+    if (runJitanSpin({ silent: true })) return;
+    if (game.jitanRemaining <= 10) {
+      setState('jitan_idle');
+      return;
+    }
+  }
+}
+
+function handleJitanMissContinue() {
+  setState('jitan_idle');
+}
+
+function endSession() {
+  game.mode = 'normal';
+  addLog(`RUSHセッション終了（連チャン${game.session.hits}回） → 通常時へ`, 'rush');
+  setState('rush_session_result');
+}
+
+function handleSessionResultEnd() {
+  game.sessionActive = false;
+  game.session = null;
+  setState('normal_idle');
+}
