@@ -97,3 +97,65 @@ function autoSpin(count) {
   }
   setState('normal_idle');
 }
+
+// ---- 大当たり共通処理 ----
+
+// fromMode: この当たりが発生した時点の game.mode ('normal'|'jitan'|'rush'|'yuutaimu')
+function resolveHit(fromMode) {
+  game.totalBonusHits++;
+  addBalls(BONUS_ACTUAL);
+  const interval = game.totalSpins - game.lastHitSpins;
+  game.currentSpins = 0;
+  game.lastHitSpins = game.totalSpins;
+  game.lowProbSpinCount = 0;
+
+  if (!game.sessionActive) {
+    game.sessionActive = true;
+    game.session = { hits: 0, nominalBalls: 0, actualBalls: 0, rushCount: 0, jitanCount: 0 };
+    game.initialHitCount++;
+  }
+  game.session.hits++;
+  game.session.nominalBalls += BONUS_NOMINAL;
+  game.session.actualBalls += BONUS_ACTUAL;
+
+  const cameFromJitanLike = fromMode === 'jitan' || fromMode === 'yuutaimu';
+  const result = resolvePattern(cameFromJitanLike);
+
+  if (result.nextMode === 'rush') {
+    game.mode = 'rush';
+    game.rushEntryCount++;
+    game.session.rushCount++;
+    game.pending = { pattern: 'odd', interval };
+  } else {
+    game.mode = 'jitan';
+    game.jitanRemaining = result.jitanLength;
+    game.jitanEntryCount++;
+    game.session.jitanCount++;
+    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength };
+  }
+
+  addLog(`${interval}回転で大当たり！ ＋${BONUS_ACTUAL}球`, 'win');
+  setState('bonus_result');
+}
+
+function handleBonusContinue() {
+  setState('pattern_cutin');
+}
+
+function handlePatternCutinContinue() {
+  setState(game.mode === 'rush' ? 'rush_idle' : 'jitan_idle');
+}
+
+// ---- 遊タイム突入 ----
+
+function enterYuutaimu() {
+  game.mode = 'yuutaimu';
+  game.jitanRemaining = YUUTAIMU_SPINS;
+  game.yuutaimuEntryCount++;
+  addLog('低確率950回転消化 → 遊タイム突入！', 'rush');
+  setState('yuutaimu_cutin');
+}
+
+function handleYuutaimuCutinContinue() {
+  setState('yuutaimu_idle');
+}
