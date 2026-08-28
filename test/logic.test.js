@@ -84,3 +84,21 @@ test('resolvePattern: even draw routes to jitan, length depends on prior state',
     { pattern: 'even', nextMode: 'jitan', jitanLength: 200 }
   );
 });
+
+test('applyNormalSpin: a hit leaves lowProbSpinCount untouched', () => {
+  const { outcome, lowProbSpinCount } = withMockRandom([0], () => logic.applyNormalSpin(300));
+  assert.equal(outcome, 'hit');
+  assert.equal(lowProbSpinCount, 300);
+});
+
+test('applyNormalSpin: a miss increments lowProbSpinCount and reports miss below threshold', () => {
+  const { outcome, lowProbSpinCount } = withMockRandom([0.99], () => logic.applyNormalSpin(300));
+  assert.equal(outcome, 'miss');
+  assert.equal(lowProbSpinCount, 301);
+});
+
+test('applyNormalSpin: a miss that reaches 950 reports yuutaimu_entry', () => {
+  const { outcome, lowProbSpinCount } = withMockRandom([0.99], () => logic.applyNormalSpin(949));
+  assert.equal(outcome, 'yuutaimu_entry');
+  assert.equal(lowProbSpinCount, 950);
+});

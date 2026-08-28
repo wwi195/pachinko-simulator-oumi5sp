@@ -51,6 +51,19 @@ function resolvePattern(cameFromJitanLike) {
   return { pattern, nextMode: 'jitan', jitanLength: decideJitanLength(cameFromJitanLike) };
 }
 
+// 通常時の1回転。ミスが続き低確率通算回転数が950に達したら遊タイムへ。
+function applyNormalSpin(lowProbSpinCount) {
+  const result = spinNormal();
+  if (result === 'hit') {
+    return { outcome: 'hit', lowProbSpinCount };
+  }
+  const nextCount = lowProbSpinCount + 1;
+  if (shouldEnterYuutaimu(nextCount)) {
+    return { outcome: 'yuutaimu_entry', lowProbSpinCount: nextCount };
+  }
+  return { outcome: 'miss', lowProbSpinCount: nextCount };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SPIN_RATE_OPTIONS,
@@ -71,5 +84,6 @@ if (typeof module !== 'undefined' && module.exports) {
     YUUTAIMU_SPINS,
     shouldEnterYuutaimu,
     resolvePattern,
+    applyNormalSpin,
   };
 }
