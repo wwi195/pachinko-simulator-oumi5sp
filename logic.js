@@ -18,6 +18,9 @@ function spinRush() {
   return Math.random() < P_RUSH ? 'hit' : 'miss';
 }
 
+const BONUS_NOMINAL = 1500;
+const BONUS_ACTUAL = 1400;
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SPIN_RATE_OPTIONS,
@@ -27,5 +30,7 @@ if (typeof module !== 'undefined' && module.exports) {
     P_RUSH,
     spinNormal,
     spinRush,
+    BONUS_NOMINAL,
+    BONUS_ACTUAL,
   };
 }

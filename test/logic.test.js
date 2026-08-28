@@ -42,3 +42,8 @@ test('spinRush returns hit when the draw beats P_RUSH, miss otherwise', () => {
   assert.equal(withMockRandom([logic.P_RUSH], () => logic.spinRush()), 'miss');
   assert.equal(withMockRandom([0.99], () => logic.spinRush()), 'miss');
 });
+
+test('BONUS_NOMINAL is 1500 and BONUS_ACTUAL is 1400 (10R x 10カウント)', () => {
+  assert.equal(logic.BONUS_NOMINAL, 1500);
+  assert.equal(logic.BONUS_ACTUAL, 1400);
+});
