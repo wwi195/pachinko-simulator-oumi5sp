@@ -33,10 +33,12 @@ test('P_NORMAL is 1/319.6 and P_RUSH is 1/31.9', () => {
 
 test('spinNormal returns hit when the draw beats P_NORMAL, miss otherwise', () => {
   assert.equal(withMockRandom([0], () => logic.spinNormal()), 'hit');
+  assert.equal(withMockRandom([logic.P_NORMAL], () => logic.spinNormal()), 'miss');
   assert.equal(withMockRandom([0.99], () => logic.spinNormal()), 'miss');
 });
 
 test('spinRush returns hit when the draw beats P_RUSH, miss otherwise', () => {
   assert.equal(withMockRandom([0], () => logic.spinRush()), 'hit');
+  assert.equal(withMockRandom([logic.P_RUSH], () => logic.spinRush()), 'miss');
   assert.equal(withMockRandom([0.99], () => logic.spinRush()), 'miss');
 });
