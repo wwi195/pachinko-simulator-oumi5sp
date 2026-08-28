@@ -61,3 +61,26 @@ test('JITAN_SHORT is 100, JITAN_LONG is 200; decideJitanLength picks by origin',
   assert.equal(logic.decideJitanLength(false), 100);
   assert.equal(logic.decideJitanLength(true), 200);
 });
+
+test('YUUTAIMU_THRESHOLD is 950, YUUTAIMU_SPINS is 350; shouldEnterYuutaimu triggers at the threshold', () => {
+  assert.equal(logic.YUUTAIMU_THRESHOLD, 950);
+  assert.equal(logic.YUUTAIMU_SPINS, 350);
+  assert.equal(logic.shouldEnterYuutaimu(949), false);
+  assert.equal(logic.shouldEnterYuutaimu(950), true);
+});
+
+test('resolvePattern: odd draw routes to rush regardless of prior state', () => {
+  assert.deepEqual(withMockRandom([0], () => logic.resolvePattern(false)), { pattern: 'odd', nextMode: 'rush' });
+  assert.deepEqual(withMockRandom([0], () => logic.resolvePattern(true)),  { pattern: 'odd', nextMode: 'rush' });
+});
+
+test('resolvePattern: even draw routes to jitan, length depends on prior state', () => {
+  assert.deepEqual(
+    withMockRandom([0.9], () => logic.resolvePattern(false)),
+    { pattern: 'even', nextMode: 'jitan', jitanLength: 100 }
+  );
+  assert.deepEqual(
+    withMockRandom([0.9], () => logic.resolvePattern(true)),
+    { pattern: 'even', nextMode: 'jitan', jitanLength: 200 }
+  );
+});

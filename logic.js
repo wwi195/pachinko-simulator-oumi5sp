@@ -34,6 +34,23 @@ function decideJitanLength(cameFromJitanLike) {
   return cameFromJitanLike ? JITAN_LONG : JITAN_SHORT;
 }
 
+const YUUTAIMU_THRESHOLD = 950;
+const YUUTAIMU_SPINS = 350;
+
+function shouldEnterYuutaimu(lowProbSpinCount) {
+  return lowProbSpinCount >= YUUTAIMU_THRESHOLD;
+}
+
+// 大当たり後の図柄振り分け。奇数=確変直行、偶数=時短
+// （直前状態が時短/遊タイムなら200回転、それ以外は100回転）。
+function resolvePattern(cameFromJitanLike) {
+  const pattern = rollPattern();
+  if (pattern === 'odd') {
+    return { pattern, nextMode: 'rush' };
+  }
+  return { pattern, nextMode: 'jitan', jitanLength: decideJitanLength(cameFromJitanLike) };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SPIN_RATE_OPTIONS,
@@ -50,5 +67,9 @@ if (typeof module !== 'undefined' && module.exports) {
     JITAN_SHORT,
     JITAN_LONG,
     decideJitanLength,
+    YUUTAIMU_THRESHOLD,
+    YUUTAIMU_SPINS,
+    shouldEnterYuutaimu,
+    resolvePattern,
   };
 }
