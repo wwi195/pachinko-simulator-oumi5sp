@@ -64,6 +64,25 @@ function applyNormalSpin(lowProbSpinCount) {
   return { outcome: 'miss', lowProbSpinCount: nextCount };
 }
 
+// 時短中・遊タイム中の1回転（両者とも1/319.6・残数カウントダウンで同一の仕組み）。
+function applySupportSpin(remaining) {
+  const result = spinNormal();
+  if (result === 'hit') {
+    return { outcome: 'hit', remaining };
+  }
+  const nextRemaining = remaining - 1;
+  if (nextRemaining <= 0) {
+    return { outcome: 'end', remaining: 0 };
+  }
+  return { outcome: 'miss', remaining: nextRemaining };
+}
+
+// 確変中の1回転。次回大当たりまで無制限に継続する。
+function applyRushSpin() {
+  const result = spinRush();
+  return { outcome: result === 'hit' ? 'hit' : 'miss' };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     SPIN_RATE_OPTIONS,
@@ -85,5 +104,7 @@ if (typeof module !== 'undefined' && module.exports) {
     shouldEnterYuutaimu,
     resolvePattern,
     applyNormalSpin,
+    applySupportSpin,
+    applyRushSpin,
   };
 }

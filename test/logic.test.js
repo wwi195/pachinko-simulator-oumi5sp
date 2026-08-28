@@ -102,3 +102,26 @@ test('applyNormalSpin: a miss that reaches 950 reports yuutaimu_entry', () => {
   assert.equal(outcome, 'yuutaimu_entry');
   assert.equal(lowProbSpinCount, 950);
 });
+
+test('applySupportSpin: a hit leaves remaining untouched', () => {
+  const { outcome, remaining } = withMockRandom([0], () => logic.applySupportSpin(50));
+  assert.equal(outcome, 'hit');
+  assert.equal(remaining, 50);
+});
+
+test('applySupportSpin: a miss decrements remaining and reports miss above zero', () => {
+  const { outcome, remaining } = withMockRandom([0.99], () => logic.applySupportSpin(50));
+  assert.equal(outcome, 'miss');
+  assert.equal(remaining, 49);
+});
+
+test('applySupportSpin: a miss on the last spin reports end', () => {
+  const { outcome, remaining } = withMockRandom([0.99], () => logic.applySupportSpin(1));
+  assert.equal(outcome, 'end');
+  assert.equal(remaining, 0);
+});
+
+test('applyRushSpin: reports hit or miss with no extra state', () => {
+  assert.deepEqual(withMockRandom([0], () => logic.applyRushSpin()), { outcome: 'hit' });
+  assert.deepEqual(withMockRandom([0.99], () => logic.applyRushSpin()), { outcome: 'miss' });
+});
