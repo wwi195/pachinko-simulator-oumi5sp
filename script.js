@@ -449,3 +449,214 @@ function renderLog() {
     `<div class="log-item ${item.type}">${item.text}</div>`
   ).join('');
 }
+
+function buildScreen(state) {
+  switch (state) {
+
+    case 'normal_idle':
+      return `<div class="screen">
+        <button class="btn-start" onclick="handleStart()">START</button>
+        <p class="prob-hint">大当たり確率 1/319.6</p>
+        <div class="spin-rate-block">
+          <span class="spin-rate-label">1000円あたりの回転数</span>
+          <select class="spin-rate-select" onchange="handleSpinRateChange(this.value)">
+            ${spinRateOptionsHtml()}
+          </select>
+        </div>
+        <div class="auto-spin-btns">
+          <div class="auto-spin-wrap">
+            <button class="btn-auto" onclick="autoSpin(${tenThousandYenSpins()})">1万円分</button>
+            <p class="spin-cost-hint">約${tenThousandYenSpins()}回転分</p>
+          </div>
+        </div>
+        <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
+      </div>`;
+
+    case 'bonus_result':
+      return `<div class="screen">
+        <p class="result-sub">${game.pending.interval}回転で大当たり</p>
+        <div class="vibun-box rush-box">
+          <p class="bonus-main premium">10R大当たり</p>
+          <p class="bonus-sub">${BONUS_NOMINAL}個（＋${BONUS_ACTUAL}球獲得）</p>
+        </div>
+        <button class="btn-action" onclick="handleBonusContinue()">▶ 次へ</button>
+      </div>`;
+
+    case 'lose_result':
+      return `<div class="screen">
+        <p class="result-main lose">はずれ</p>
+        <button class="btn-sub" onclick="setState('normal_idle')" style="margin-top:8px;">続ける</button>
+      </div>`;
+
+    case 'pattern_cutin': {
+      const { pattern, jitanLength } = game.pending;
+      const flavor = pattern === 'odd'
+        ? '奇数図柄揃い！確変直行'
+        : `偶数図柄揃い　時短${jitanLength}回転`;
+      const title = pattern === 'odd' ? '確変突入！' : '時短突入';
+      return `<div class="screen">
+        <p class="cutin-flavor">${flavor}</p>
+        <p class="rush-title">${title}</p>
+        <button class="btn-action" onclick="handlePatternCutinContinue()">▶ 次へ</button>
+      </div>`;
+    }
+
+    case 'jitan_idle': {
+      const skipDisabled = game.jitanRemaining <= 10;
+      return `<div class="screen">
+        <p class="rush-sub">電サポ残り <span>${game.jitanRemaining}</span> 回</p>
+        <div class="rush-spin-btns">
+          <button class="btn-rush-spin" onclick="handleJitanSpin()">1回転</button>
+          <button class="btn-rush-spin" onclick="handleJitanSpin10()">10回転</button>
+          <button class="btn-rush-spin skip" ${skipDisabled ? 'disabled' : 'onclick="handleJitanSkip()"'}>スキップ</button>
+        </div>
+        <p class="prob-hint">大当たり確率 1/319.6</p>
+        <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
+      </div>`;
+    }
+
+    case 'jitan_miss':
+      return `<div class="screen">
+        <p class="result-main lose">外れ</p>
+        <p class="result-sub">電サポ残り ${game.jitanRemaining}回</p>
+        <button class="btn-sub" onclick="handleJitanMissContinue()" style="margin-top:12px;">続ける</button>
+      </div>`;
+
+    case 'rush_idle':
+      return `<div class="screen">
+        <p class="chain-label">${game.session.hits}連チャン中</p>
+        <p class="rush-sub">確変中獲得出玉 <span>${game.session.actualBalls.toLocaleString()}</span> 球</p>
+        <div class="rush-spin-btns">
+          <button class="btn-rush-spin" onclick="handleRushSpin()">1回転</button>
+          <button class="btn-rush-spin" onclick="handleRushSpin10()">10回転</button>
+        </div>
+        <p class="prob-hint">大当たり確率 1/31.9</p>
+        <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
+      </div>`;
+
+    case 'rush_miss':
+      return `<div class="screen">
+        <p class="result-main lose">外れ</p>
+        <p class="result-sub">確変継続中</p>
+        <button class="btn-sub" onclick="handleRushMissContinue()" style="margin-top:12px;">続ける</button>
+      </div>`;
+
+    case 'yuutaimu_cutin':
+      return `<div class="screen">
+        <p class="cutin-flavor">低確率950回転消化</p>
+        <p class="rush-title">遊タイム突入！</p>
+        <p class="result-sub">残り${YUUTAIMU_SPINS}回転</p>
+        <button class="btn-action" onclick="handleYuutaimuCutinContinue()">▶ 次へ</button>
+      </div>`;
+
+    case 'yuutaimu_idle': {
+      const skipDisabled = game.jitanRemaining <= 10;
+      return `<div class="screen">
+        <p class="rush-sub">遊タイム残り <span>${game.jitanRemaining}</span> 回</p>
+        <div class="rush-spin-btns">
+          <button class="btn-rush-spin" onclick="handleYuutaimuSpin()">1回転</button>
+          <button class="btn-rush-spin" onclick="handleYuutaimuSpin10()">10回転</button>
+          <button class="btn-rush-spin skip" ${skipDisabled ? 'disabled' : 'onclick="handleYuutaimuSkip()"'}>スキップ</button>
+        </div>
+        <p class="prob-hint">大当たり確率 1/319.6</p>
+        <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
+      </div>`;
+    }
+
+    case 'yuutaimu_miss':
+      return `<div class="screen">
+        <p class="result-main lose">外れ</p>
+        <p class="result-sub">遊タイム残り ${game.jitanRemaining}回</p>
+        <button class="btn-sub" onclick="handleYuutaimuMissContinue()" style="margin-top:12px;">続ける</button>
+      </div>`;
+
+    case 'rush_session_result': {
+      const s = game.session;
+      return `<div class="screen">
+        <p class="rush-result-title">RUSH リザルト</p>
+        <div class="rush-result-box">
+          <div class="result-row highlight">
+            <span class="rr-label">連チャン数</span>
+            <span class="rr-val gold">${s.hits}回</span>
+          </div>
+          <div class="result-row">
+            <span class="rr-label">TOTAL</span>
+            <span class="rr-val gold">${s.nominalBalls.toLocaleString()}個</span>
+          </div>
+          <div class="result-row">
+            <span class="rr-label">獲得出玉</span>
+            <span class="rr-val">${s.actualBalls.toLocaleString()}球</span>
+          </div>
+          <hr class="result-hr">
+          <p class="rr-section">内訳</p>
+          <div class="result-row">
+            <span class="rr-label">確変移行</span>
+            <span class="rr-val">×${s.rushCount}回</span>
+          </div>
+          <div class="result-row">
+            <span class="rr-label">時短移行</span>
+            <span class="rr-val">×${s.jitanCount}回</span>
+          </div>
+        </div>
+        <button class="btn-action" onclick="handleSessionResultEnd()" style="margin-top:16px;">▶ 通常へ戻る</button>
+      </div>`;
+    }
+
+    case 'eigyo_alert':
+      return `<div class="screen">
+        <p style="font-size:22px; font-weight:bold; color:#0d6ea8; text-align:center; line-height:1.6;">
+          営業時間終了になりました
+        </p>
+        <p style="font-size:16px; color:#666; text-align:center;">このまま居座り続けますか？</p>
+        <div style="display:flex; gap:16px; margin-top:8px;">
+          <button class="btn-action" style="flex:1;" onclick="handleEigyoHai()">はい</button>
+          <button class="btn-action" style="flex:1; background:linear-gradient(135deg,#999,#666); border-color:#ccc;"
+            onclick="handleEigyoIie()">いいえ</button>
+        </div>
+      </div>`;
+
+    case 'taiten_result': {
+      const mochi    = Math.floor(game.mochiDama);
+      const mochiYen = mochi * 4;
+      const shuushi  = mochiYen - game.toushi;
+      const shuushiColor = shuushi >= 0 ? '#2e9e5b' : '#d24141';
+      const shuushiSign  = shuushi >= 0 ? '＋' : '';
+      return `<div class="screen">
+        <p style="font-size:24px; font-weight:bold; color:#666;">退店します</p>
+        <div class="rush-result-box" style="max-width:320px;">
+          <p class="rr-section" style="margin-bottom:8px;">収支発表</p>
+          <div class="result-row">
+            <span class="rr-label">総回転数</span>
+            <span class="rr-val">${game.totalSpins.toLocaleString()}回</span>
+          </div>
+          <div class="result-row">
+            <span class="rr-label">投資金額</span>
+            <span class="rr-val" style="color:#d24141;">${game.toushi.toLocaleString()}円</span>
+          </div>
+          <div class="result-row">
+            <span class="rr-label">持ち球換算</span>
+            <span class="rr-val">${mochiYen.toLocaleString()}円</span>
+          </div>
+          <hr class="result-hr">
+          <div class="result-row highlight">
+            <span class="rr-label" style="font-weight:bold;">収支</span>
+            <span class="rr-val" style="color:${shuushiColor}; font-size:22px;">
+              ${shuushiSign}${shuushi.toLocaleString()}円
+            </span>
+          </div>
+          <hr class="result-hr">
+          <div class="result-row">
+            <span class="rr-label">確変移行</span>
+            <span class="rr-val">${game.rushEntryCount}回</span>
+          </div>
+        </div>
+        <button class="btn-action" onclick="resetGame()" style="margin-top:8px;">▶ 最初の画面に戻る</button>
+      </div>`;
+    }
+
+    default:
+      return `<div class="screen"><p>...</p></div>`;
+  }
+}
+
+render();
