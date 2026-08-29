@@ -115,6 +115,12 @@ test('applyNormalSpin: a miss that reaches 950 reports yuutaimu_entry', () => {
   assert.equal(lowProbSpinCount, 950);
 });
 
+test('applyNormalSpin: once yuutaimuUsed is true, 950 no longer triggers yuutaimu_entry (青天井)', () => {
+  const { outcome, lowProbSpinCount } = withMockRandom([0.99], () => logic.applyNormalSpin(949, true));
+  assert.equal(outcome, 'miss');
+  assert.equal(lowProbSpinCount, 950);
+});
+
 test('applySupportSpin: a hit leaves remaining untouched', () => {
   const { outcome, remaining } = withMockRandom([0], () => logic.applySupportSpin(50));
   assert.equal(outcome, 'hit');

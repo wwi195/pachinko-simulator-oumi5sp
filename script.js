@@ -11,6 +11,7 @@ const game = {
   lastHitSpins: 0,
   lowProbSpinCount: 0,
   jitanRemaining: 0,
+  yuutaimuUsed: false,
   supportSpinsSinceLastHit: 0,
   ballsSpentSinceLastHit: 0,
   totalBonusHits: 0,
@@ -82,7 +83,7 @@ function runNormalSpin() {
   game.totalSpins++;
   game.currentSpins++;
   consumeSpinCost();
-  const { outcome, lowProbSpinCount } = applyNormalSpin(game.lowProbSpinCount);
+  const { outcome, lowProbSpinCount } = applyNormalSpin(game.lowProbSpinCount, game.yuutaimuUsed);
   game.lowProbSpinCount = lowProbSpinCount;
 
   if (outcome === 'hit') {
@@ -170,6 +171,7 @@ function enterYuutaimu() {
   game.mode = 'yuutaimu';
   game.jitanRemaining = YUUTAIMU_SPINS;
   game.yuutaimuEntryCount++;
+  game.yuutaimuUsed = true; // 遊タイムは1プレイにつき1回のみ。以後は青天井。
   addLog('低確率950回転消化 → 遊タイム突入！', 'rush');
   setState('yuutaimu_cutin');
 }
@@ -347,6 +349,7 @@ function resetGame() {
   game.lastHitSpins = 0;
   game.lowProbSpinCount = 0;
   game.jitanRemaining = 0;
+  game.yuutaimuUsed = false;
   game.supportSpinsSinceLastHit = 0;
   game.ballsSpentSinceLastHit = 0;
   game.totalBonusHits = 0;
@@ -398,6 +401,9 @@ function renderHeader() {
   } else if (game.mode === 'rush') {
     supportLabelEl.textContent = '電サポ残り';
     supportEl.textContent = '次回まで';
+  } else if (game.yuutaimuUsed) {
+    supportLabelEl.textContent = '電サポ残り';
+    supportEl.textContent = '－';
   } else {
     supportLabelEl.textContent = '遊タイムまで残り';
     supportEl.textContent = `${YUUTAIMU_THRESHOLD - game.lowProbSpinCount}回`;

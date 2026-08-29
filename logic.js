@@ -62,13 +62,15 @@ function resolvePattern(cameFromJitanLike) {
 }
 
 // 通常時の1回転。ミスが続き低確率通算回転数が950に達したら遊タイムへ。
-function applyNormalSpin(lowProbSpinCount) {
+// 遊タイムは1プレイにつき1回のみ（yuutaimuUsedがtrueなら以後は青天井、
+// 二度と遊タイムには入らない）。
+function applyNormalSpin(lowProbSpinCount, yuutaimuUsed = false) {
   const result = spinNormal();
   if (result === 'hit') {
     return { outcome: 'hit', lowProbSpinCount };
   }
   const nextCount = lowProbSpinCount + 1;
-  if (shouldEnterYuutaimu(nextCount)) {
+  if (!yuutaimuUsed && shouldEnterYuutaimu(nextCount)) {
     return { outcome: 'yuutaimu_entry', lowProbSpinCount: nextCount };
   }
   return { outcome: 'miss', lowProbSpinCount: nextCount };
