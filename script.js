@@ -11,6 +11,8 @@ const game = {
   lastHitSpins: 0,
   lowProbSpinCount: 0,
   jitanRemaining: 0,
+  supportSpinsSinceLastHit: 0,
+  ballsSpentSinceLastHit: 0,
   totalBonusHits: 0,
   initialHitCount: 0,
   rushEntryCount: 0,
@@ -32,8 +34,8 @@ function addLog(text, type = '') {
 
 // ---- 球数・投資 ----
 
-function consumeSpinCost() {
-  const cost = calcSpinCost(game.spinRate);
+function consumeBalls(cost) {
+  game.ballsSpentSinceLastHit += cost;
   if (game.mochiDama >= cost) {
     game.mochiDama -= cost;
   } else {
@@ -43,6 +45,17 @@ function consumeSpinCost() {
     game.toushi   += units * 1000;
     game.mochiDama = units * 250 - shortfall;
   }
+}
+
+// 通常時の回転コスト（回転数レートから算出）。
+function consumeSpinCost() {
+  consumeBalls(calcSpinCost(game.spinRate));
+}
+
+// 時短・確変・遊タイム中の回転コスト。電サポ中は玉が減りにくいため1回転1球固定。
+function consumeSupportSpinCost() {
+  game.supportSpinsSinceLastHit++;
+  consumeBalls(1);
 }
 
 function addBalls(n) {
@@ -105,9 +118,13 @@ function resolveHit(fromMode) {
   game.totalBonusHits++;
   addBalls(BONUS_ACTUAL);
   const interval = game.totalSpins - game.lastHitSpins;
+  const supportSpins = game.supportSpinsSinceLastHit;
+  const ballsSpent = Math.floor(game.ballsSpentSinceLastHit);
   game.currentSpins = 0;
   game.lastHitSpins = game.totalSpins;
   game.lowProbSpinCount = 0;
+  game.supportSpinsSinceLastHit = 0;
+  game.ballsSpentSinceLastHit = 0;
 
   if (!game.sessionActive) {
     game.sessionActive = true;
@@ -126,13 +143,13 @@ function resolveHit(fromMode) {
     game.mode = 'rush';
     game.rushEntryCount++;
     game.session.rushCount++;
-    game.pending = { pattern: 'odd', interval, symbol };
+    game.pending = { pattern: 'odd', interval, symbol, supportSpins, ballsSpent };
   } else {
     game.mode = 'jitan';
     game.jitanRemaining = result.jitanLength;
     game.jitanEntryCount++;
     game.session.jitanCount++;
-    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength, symbol };
+    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength, symbol, supportSpins, ballsSpent };
   }
 
   addLog(`${interval}回転で大当たり！ ＋${BONUS_ACTUAL}球`, 'win');
@@ -167,7 +184,7 @@ function runJitanSpin(opts = {}) {
   game.totalSpins++;
   game.currentSpins++;
   game.lowProbSpinCount++;
-  consumeSpinCost();
+  consumeSupportSpinCost();
   const { outcome, remaining } = applySupportSpin(game.jitanRemaining);
   game.jitanRemaining = remaining;
 
@@ -226,7 +243,7 @@ function runRushSpin() {
   game.totalSpins++;
   game.currentSpins++;
   game.rushAllStats.rushTotalSpins++;
-  consumeSpinCost();
+  consumeSupportSpinCost();
   const { outcome } = applyRushSpin();
 
   if (outcome === 'hit') {
@@ -250,7 +267,7 @@ function runYuutaimuSpin(opts = {}) {
   game.totalSpins++;
   game.currentSpins++;
   game.lowProbSpinCount++;
-  consumeSpinCost();
+  consumeSupportSpinCost();
   const { outcome, remaining } = applySupportSpin(game.jitanRemaining);
   game.jitanRemaining = remaining;
 
@@ -330,6 +347,8 @@ function resetGame() {
   game.lastHitSpins = 0;
   game.lowProbSpinCount = 0;
   game.jitanRemaining = 0;
+  game.supportSpinsSinceLastHit = 0;
+  game.ballsSpentSinceLastHit = 0;
   game.totalBonusHits = 0;
   game.initialHitCount = 0;
   game.rushEntryCount = 0;
@@ -459,9 +478,10 @@ function buildScreen(state) {
       </div>`;
 
     case 'bonus_result': {
-      const { interval, symbol } = game.pending;
+      const { interval, symbol, supportSpins, ballsSpent } = game.pending;
       return `<div class="screen">
         <p class="result-sub">${interval}回転で大当たり</p>
+        <p class="result-sub">電サポ消化 ${supportSpins}回転／球数 -${ballsSpent.toLocaleString()}</p>
         <div class="vibun-box rush-box">
           <p class="bonus-main premium">${symbol}${symbol}${symbol}　大当たり</p>
           <p class="bonus-sub">${BONUS_NOMINAL}個（＋${BONUS_ACTUAL}球獲得）</p>
