@@ -72,7 +72,7 @@ function handleSpinRateChange(value) {
 // ---- 通常時ハンドラ ----
 
 function checkEigyoAlert() {
-  if (!game.eigyoAlertShown && game.totalSpins >= 2000) {
+  if (!game.eigyoAlertShown && game.totalSpins >= 4000) {
     game.eigyoAlertShown = true;
     setState('eigyo_alert');
     return true;
