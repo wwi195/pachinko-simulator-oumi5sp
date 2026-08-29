@@ -358,3 +358,94 @@ function resetGame() {
   game.log = [];
   render();
 }
+
+// ---- 状態セット & レンダリング ----
+
+function setState(state) {
+  game.state = state;
+  render();
+}
+
+function render() {
+  renderHeader();
+  renderModeBadge();
+  renderMainScreen();
+  renderRushStats();
+}
+
+function renderHeader() {
+  const mochiInt = Math.floor(game.mochiDama);
+  document.getElementById('mochi-dama').textContent   = mochiInt.toLocaleString();
+  document.getElementById('toushi-value').textContent = game.toushi.toLocaleString();
+
+  const shuushi   = mochiInt * 4 - game.toushi;
+  const shuushiEl = document.getElementById('shuushi-value');
+  shuushiEl.textContent = (shuushi >= 0 ? '+' : '') + shuushi.toLocaleString();
+  shuushiEl.className   = 'money-value ' + (shuushi >= 0 ? 'green' : 'red');
+  document.getElementById('current-spins').textContent = game.currentSpins.toLocaleString();
+  document.getElementById('total-spins-disp').textContent = game.totalSpins.toLocaleString();
+
+  const supportEl = document.getElementById('rush-count');
+  if (game.mode === 'jitan' || game.mode === 'yuutaimu') {
+    supportEl.textContent = `${game.jitanRemaining}回`;
+  } else if (game.mode === 'rush') {
+    supportEl.textContent = '次回まで';
+  } else {
+    supportEl.textContent = '－';
+  }
+
+  document.getElementById('total-hit-count').textContent = game.totalBonusHits + '回';
+  document.getElementById('normal-first-hit').textContent  = game.initialHitCount + '回';
+  document.getElementById('normal-first-prob').textContent = game.initialHitCount > 0 && game.totalSpins > 0
+    ? '1/' + Math.round(game.totalSpins / game.initialHitCount).toLocaleString()
+    : '1/―';
+
+  document.getElementById('rush-entry-count').textContent = game.rushEntryCount + '回';
+  const rushEntryRate = game.totalBonusHits > 0 ? Math.round(game.rushEntryCount / game.totalBonusHits * 100) : 0;
+  document.getElementById('rush-entry-info').textContent = `(移行率 ${rushEntryRate}%)`;
+
+  document.getElementById('jitan-entry-count').textContent = game.jitanEntryCount + '回';
+  document.getElementById('yuutaimu-entry-count').textContent = game.yuutaimuEntryCount + '回';
+
+  document.getElementById('fee-block').textContent = `${game.spinRate}回転/千円`;
+}
+
+const MODE_BADGE_LABELS = { normal: '通常時', jitan: '時短', rush: '確変', yuutaimu: '遊タイム' };
+
+function renderModeBadge() {
+  const el = document.getElementById('mode-badge');
+  el.textContent = MODE_BADGE_LABELS[game.mode];
+  el.className = game.mode === 'normal' ? '' : game.mode;
+}
+
+function renderMainScreen() {
+  document.getElementById('main-screen').innerHTML = buildScreen(game.state);
+}
+
+function spinRateOptionsHtml() {
+  return SPIN_RATE_OPTIONS.map(rate =>
+    `<option value="${rate}" ${rate === game.spinRate ? 'selected' : ''}>${rate}回転</option>`
+  ).join('');
+}
+
+function tenThousandYenSpins() {
+  return game.spinRate * 10;
+}
+
+function renderRushStats() {
+  const hits  = game.rushAllStats.rushTotalHits;
+  const spins = game.rushAllStats.rushTotalSpins;
+  const prob  = hits > 0 && spins > 0
+    ? '1/' + (spins / hits).toFixed(1)
+    : '1/―';
+  document.getElementById('rs-chain').textContent = hits + '回';
+  document.getElementById('rs-prob').textContent  = prob;
+  document.getElementById('rs-spins').textContent = spins + '回';
+}
+
+function renderLog() {
+  const el = document.getElementById('log-list');
+  el.innerHTML = game.log.map(item =>
+    `<div class="log-item ${item.type}">${item.text}</div>`
+  ).join('');
+}
