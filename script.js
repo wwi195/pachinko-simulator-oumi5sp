@@ -312,3 +312,49 @@ function handleYuutaimuSkip() {
 function handleYuutaimuMissContinue() {
   setState('yuutaimu_idle');
 }
+
+// ---- 営業終了・退店 ----
+
+const IDLE_STATE_BY_MODE = {
+  normal: 'normal_idle',
+  jitan: 'jitan_idle',
+  rush: 'rush_idle',
+  yuutaimu: 'yuutaimu_idle',
+};
+
+function handleEigyoHai() {
+  setState(IDLE_STATE_BY_MODE[game.mode]);
+}
+
+function handleEigyoIie() {
+  setState('taiten_result');
+}
+
+function handleTaiten() {
+  setState('taiten_result');
+}
+
+function resetGame() {
+  game.state = 'normal_idle';
+  game.mode = 'normal';
+  game.spinRate = DEFAULT_SPIN_RATE;
+  game.mochiDama = 0;
+  game.toushi = 0;
+  game.totalSpins = 0;
+  game.currentSpins = 0;
+  game.lastHitSpins = 0;
+  game.lowProbSpinCount = 0;
+  game.jitanRemaining = 0;
+  game.totalBonusHits = 0;
+  game.initialHitCount = 0;
+  game.rushEntryCount = 0;
+  game.jitanEntryCount = 0;
+  game.yuutaimuEntryCount = 0;
+  game.rushAllStats = { rushTotalSpins: 0, rushTotalHits: 0 };
+  game.sessionActive = false;
+  game.session = null;
+  game.pending = {};
+  game.eigyoAlertShown = false;
+  game.log = [];
+  render();
+}
