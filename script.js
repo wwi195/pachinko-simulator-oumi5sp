@@ -222,3 +222,93 @@ function handleSessionResultEnd() {
   game.session = null;
   setState('normal_idle');
 }
+
+// ---- 確変中ハンドラ ----
+
+function runRushSpin(opts = {}) {
+  game.totalSpins++;
+  game.currentSpins++;
+  game.rushAllStats.rushTotalSpins++;
+  consumeSpinCost();
+  const { outcome } = applyRushSpin();
+
+  if (outcome === 'hit') {
+    game.rushAllStats.rushTotalHits++;
+    resolveHit('rush');
+    return true;
+  }
+  if (!opts.silent) {
+    setState('rush_miss');
+    return true;
+  }
+  return false;
+}
+
+function handleRushSpin() {
+  runRushSpin();
+}
+
+function handleRushSpin10() {
+  for (let i = 0; i < 10; i++) {
+    if (runRushSpin({ silent: true })) return;
+  }
+  setState('rush_idle');
+}
+
+function handleRushMissContinue() {
+  setState('rush_idle');
+}
+
+// ---- 遊タイム中ハンドラ ----
+
+function runYuutaimuSpin(opts = {}) {
+  game.totalSpins++;
+  game.currentSpins++;
+  game.lowProbSpinCount++;
+  consumeSpinCost();
+  const { outcome, remaining } = applySupportSpin(game.jitanRemaining);
+  game.jitanRemaining = remaining;
+
+  if (outcome === 'hit') {
+    resolveHit('yuutaimu');
+    return true;
+  }
+  if (outcome === 'end') {
+    game.mode = 'normal';
+    game.lowProbSpinCount = 0;
+    addLog('遊タイム終了 → 通常時へ');
+    setState('normal_idle');
+    return true;
+  }
+  if (!opts.silent) {
+    addLog(`遊タイム残り${remaining}回`);
+    setState('yuutaimu_miss');
+    return true;
+  }
+  return false;
+}
+
+function handleYuutaimuSpin() {
+  runYuutaimuSpin();
+}
+
+function handleYuutaimuSpin10() {
+  for (let i = 0; i < 10; i++) {
+    if (runYuutaimuSpin({ silent: true })) return;
+  }
+  setState('yuutaimu_idle');
+}
+
+function handleYuutaimuSkip() {
+  for (;;) {
+    if (runYuutaimuSpin({ silent: true })) return;
+    if (game.jitanRemaining <= 10) {
+      setState('yuutaimu_idle');
+      return;
+    }
+  }
+}
+
+function handleYuutaimuMissContinue() {
+  setState('yuutaimu_idle');
+}
