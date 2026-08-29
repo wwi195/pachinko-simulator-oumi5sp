@@ -27,6 +27,16 @@ function rollPattern() {
   return Math.random() < P_ODD ? 'odd' : 'even';
 }
 
+const ODD_DIGITS = [1, 3, 5, 7, 9];
+const EVEN_DIGITS = [2, 4, 6, 8];
+
+// 大当たり結果画面のゾロ目表示（111〜999）。奇数図柄=確変、偶数図柄=時短の
+// 内部判定と食い違わないよう、既に決まった pattern に合う数字だけを抽選する。
+function rollHitSymbol(pattern) {
+  const digits = pattern === 'odd' ? ODD_DIGITS : EVEN_DIGITS;
+  return digits[Math.floor(Math.random() * digits.length)];
+}
+
 const JITAN_SHORT = 100;
 const JITAN_LONG = 200;
 
@@ -96,6 +106,9 @@ if (typeof module !== 'undefined' && module.exports) {
     BONUS_ACTUAL,
     P_ODD,
     rollPattern,
+    ODD_DIGITS,
+    EVEN_DIGITS,
+    rollHitSymbol,
     JITAN_SHORT,
     JITAN_LONG,
     decideJitanLength,

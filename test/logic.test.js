@@ -55,6 +55,18 @@ test('P_ODD is 0.54; rollPattern returns odd under 54%, even otherwise', () => {
   assert.equal(withMockRandom([0.9],         () => logic.rollPattern()), 'even');
 });
 
+test('ODD_DIGITS and EVEN_DIGITS list the digits used for the hit-symbol display', () => {
+  assert.deepEqual(logic.ODD_DIGITS, [1, 3, 5, 7, 9]);
+  assert.deepEqual(logic.EVEN_DIGITS, [2, 4, 6, 8]);
+});
+
+test('rollHitSymbol picks a digit from ODD_DIGITS for an odd pattern, EVEN_DIGITS for even', () => {
+  assert.equal(withMockRandom([0],    () => logic.rollHitSymbol('odd')), 1);
+  assert.equal(withMockRandom([0.99], () => logic.rollHitSymbol('odd')), 9);
+  assert.equal(withMockRandom([0],    () => logic.rollHitSymbol('even')), 2);
+  assert.equal(withMockRandom([0.99], () => logic.rollHitSymbol('even')), 8);
+});
+
 test('JITAN_SHORT is 100, JITAN_LONG is 200; decideJitanLength picks by origin', () => {
   assert.equal(logic.JITAN_SHORT, 100);
   assert.equal(logic.JITAN_LONG, 200);

@@ -120,18 +120,19 @@ function resolveHit(fromMode) {
 
   const cameFromJitanLike = fromMode === 'jitan' || fromMode === 'yuutaimu';
   const result = resolvePattern(cameFromJitanLike);
+  const symbol = rollHitSymbol(result.pattern);
 
   if (result.nextMode === 'rush') {
     game.mode = 'rush';
     game.rushEntryCount++;
     game.session.rushCount++;
-    game.pending = { pattern: 'odd', interval };
+    game.pending = { pattern: 'odd', interval, symbol };
   } else {
     game.mode = 'jitan';
     game.jitanRemaining = result.jitanLength;
     game.jitanEntryCount++;
     game.session.jitanCount++;
-    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength };
+    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength, symbol };
   }
 
   addLog(`${interval}回転で大当たり！ ＋${BONUS_ACTUAL}球`, 'win');
@@ -221,7 +222,7 @@ function handleSessionResultEnd() {
 
 // ---- 確変中ハンドラ ----
 
-function runRushSpin(opts = {}) {
+function runRushSpin() {
   game.totalSpins++;
   game.currentSpins++;
   game.rushAllStats.rushTotalSpins++;
@@ -233,25 +234,13 @@ function runRushSpin(opts = {}) {
     resolveHit('rush');
     return true;
   }
-  if (!opts.silent) {
-    setState('rush_miss');
-    return true;
-  }
   return false;
 }
 
-function handleRushSpin() {
-  runRushSpin();
-}
-
-function handleRushSpin10() {
-  for (let i = 0; i < 10; i++) {
-    if (runRushSpin({ silent: true })) return;
+function handleRushSpin30() {
+  for (let i = 0; i < 30; i++) {
+    if (runRushSpin()) return;
   }
-  setState('rush_idle');
-}
-
-function handleRushMissContinue() {
   setState('rush_idle');
 }
 
@@ -469,15 +458,17 @@ function buildScreen(state) {
         <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
       </div>`;
 
-    case 'bonus_result':
+    case 'bonus_result': {
+      const { interval, symbol } = game.pending;
       return `<div class="screen">
-        <p class="result-sub">${game.pending.interval}回転で大当たり</p>
+        <p class="result-sub">${interval}回転で大当たり</p>
         <div class="vibun-box rush-box">
-          <p class="bonus-main premium">10R大当たり</p>
+          <p class="bonus-main premium">${symbol}${symbol}${symbol}　大当たり</p>
           <p class="bonus-sub">${BONUS_NOMINAL}個（＋${BONUS_ACTUAL}球獲得）</p>
         </div>
         <button class="btn-action" onclick="handleBonusContinue()">▶ 次へ</button>
       </div>`;
+    }
 
     case 'lose_result':
       return `<div class="screen">
@@ -523,18 +514,10 @@ function buildScreen(state) {
         <p class="chain-label">${game.session.hits}連チャン中</p>
         <p class="rush-sub">確変中獲得出玉 <span>${game.session.actualBalls.toLocaleString()}</span> 球</p>
         <div class="rush-spin-btns">
-          <button class="btn-rush-spin" onclick="handleRushSpin()">1回転</button>
-          <button class="btn-rush-spin" onclick="handleRushSpin10()">10回転</button>
+          <button class="btn-rush-spin" onclick="handleRushSpin30()">30回転</button>
         </div>
         <p class="prob-hint">大当たり確率 1/31.9</p>
         <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
-      </div>`;
-
-    case 'rush_miss':
-      return `<div class="screen">
-        <p class="result-main lose">外れ</p>
-        <p class="result-sub">確変継続中</p>
-        <button class="btn-sub" onclick="handleRushMissContinue()" style="margin-top:12px;">続ける</button>
       </div>`;
 
     case 'yuutaimu_cutin':
