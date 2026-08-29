@@ -81,6 +81,12 @@ test('YUUTAIMU_THRESHOLD is 950, YUUTAIMU_SPINS is 350; shouldEnterYuutaimu trig
   assert.equal(logic.shouldEnterYuutaimu(950), true);
 });
 
+test('yuutaimuMissRatePercent is the (1-P_NORMAL)^950 miss-streak probability, ~5.1%', () => {
+  const expected = (100 * Math.pow(1 - 1 / 319.6, 950)).toFixed(1);
+  assert.equal(logic.yuutaimuMissRatePercent(), expected);
+  assert.equal(logic.yuutaimuMissRatePercent(), '5.1');
+});
+
 test('resolvePattern: odd draw routes to rush regardless of prior state', () => {
   assert.deepEqual(withMockRandom([0], () => logic.resolvePattern(false)), { pattern: 'odd', nextMode: 'rush' });
   assert.deepEqual(withMockRandom([0], () => logic.resolvePattern(true)),  { pattern: 'odd', nextMode: 'rush' });

@@ -556,6 +556,7 @@ function buildScreen(state) {
       return `<div class="screen">
         <p class="cutin-flavor">低確率950回転消化</p>
         <p class="rush-title">遊タイム突入！</p>
+        <p class="result-sub">1/319.6を950回転で引けない確率：${yuutaimuMissRatePercent()}%</p>
         <p class="result-sub">残り${YUUTAIMU_SPINS}回転</p>
         <button class="btn-action" onclick="handleYuutaimuCutinContinue()">▶ 次へ</button>
       </div>`;

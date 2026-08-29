@@ -51,6 +51,12 @@ function shouldEnterYuutaimu(lowProbSpinCount) {
   return lowProbSpinCount >= YUUTAIMU_THRESHOLD;
 }
 
+// 通常時の確率(P_NORMAL)で950回転(YUUTAIMU_THRESHOLD)消化しても大当たりを
+// 引けない確率（＝遊タイムに到達する確率）をパーセント表記で返す。
+function yuutaimuMissRatePercent() {
+  return (100 * Math.pow(1 - P_NORMAL, YUUTAIMU_THRESHOLD)).toFixed(1);
+}
+
 // 大当たり後の図柄振り分け。奇数=確変直行、偶数=時短
 // （直前状態が時短/遊タイムなら200回転、それ以外は100回転）。
 function resolvePattern(cameFromJitanLike) {
@@ -117,6 +123,7 @@ if (typeof module !== 'undefined' && module.exports) {
     YUUTAIMU_THRESHOLD,
     YUUTAIMU_SPINS,
     shouldEnterYuutaimu,
+    yuutaimuMissRatePercent,
     resolvePattern,
     applyNormalSpin,
     applySupportSpin,
