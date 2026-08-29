@@ -13,7 +13,7 @@ const game = {
   jitanRemaining: 0,
   yuutaimuUsed: false,
   supportSpinsSinceLastHit: 0,
-  ballsSpentSinceLastHit: 0,
+  normalBallsSpentSinceLastHit: 0,
   totalBonusHits: 0,
   initialHitCount: 0,
   rushEntryCount: 0,
@@ -36,7 +36,6 @@ function addLog(text, type = '') {
 // ---- 球数・投資 ----
 
 function consumeBalls(cost) {
-  game.ballsSpentSinceLastHit += cost;
   if (game.mochiDama >= cost) {
     game.mochiDama -= cost;
   } else {
@@ -48,9 +47,11 @@ function consumeBalls(cost) {
   }
 }
 
-// 通常時の回転コスト（回転数レートから算出）。
+// 通常時の回転コスト（回転数レートから算出）。電サポ抜け後の使用玉数として集計する。
 function consumeSpinCost() {
-  consumeBalls(calcSpinCost(game.spinRate));
+  const cost = calcSpinCost(game.spinRate);
+  game.normalBallsSpentSinceLastHit += cost;
+  consumeBalls(cost);
 }
 
 // 時短・確変・遊タイム中の回転コスト。電サポ中は玉が減りにくいため1回転1球固定。
@@ -119,13 +120,13 @@ function resolveHit(fromMode) {
   game.totalBonusHits++;
   addBalls(BONUS_ACTUAL);
   const interval = game.totalSpins - game.lastHitSpins;
-  const supportSpins = game.supportSpinsSinceLastHit;
-  const ballsSpent = Math.floor(game.ballsSpentSinceLastHit);
+  const spinsAfterSupport = interval - game.supportSpinsSinceLastHit;
+  const normalBallsSpent = Math.floor(game.normalBallsSpentSinceLastHit);
   game.currentSpins = 0;
   game.lastHitSpins = game.totalSpins;
   game.lowProbSpinCount = 0;
   game.supportSpinsSinceLastHit = 0;
-  game.ballsSpentSinceLastHit = 0;
+  game.normalBallsSpentSinceLastHit = 0;
 
   if (!game.sessionActive) {
     game.sessionActive = true;
@@ -144,13 +145,13 @@ function resolveHit(fromMode) {
     game.mode = 'rush';
     game.rushEntryCount++;
     game.session.rushCount++;
-    game.pending = { pattern: 'odd', interval, symbol, supportSpins, ballsSpent };
+    game.pending = { pattern: 'odd', interval, symbol, spinsAfterSupport, normalBallsSpent };
   } else {
     game.mode = 'jitan';
     game.jitanRemaining = result.jitanLength;
     game.jitanEntryCount++;
     game.session.jitanCount++;
-    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength, symbol, supportSpins, ballsSpent };
+    game.pending = { pattern: 'even', interval, jitanLength: result.jitanLength, symbol, spinsAfterSupport, normalBallsSpent };
   }
 
   addLog(`${interval}回転で大当たり！ ＋${BONUS_ACTUAL}球`, 'win');
@@ -351,7 +352,7 @@ function resetGame() {
   game.jitanRemaining = 0;
   game.yuutaimuUsed = false;
   game.supportSpinsSinceLastHit = 0;
-  game.ballsSpentSinceLastHit = 0;
+  game.normalBallsSpentSinceLastHit = 0;
   game.totalBonusHits = 0;
   game.initialHitCount = 0;
   game.rushEntryCount = 0;
@@ -488,10 +489,10 @@ function buildScreen(state) {
       </div>`;
 
     case 'bonus_result': {
-      const { interval, symbol, supportSpins, ballsSpent } = game.pending;
+      const { interval, symbol, spinsAfterSupport, normalBallsSpent } = game.pending;
       return `<div class="screen">
         <p class="result-sub">${interval}回転で大当たり</p>
-        <p class="result-sub">電サポ消化 ${supportSpins}回転／球数 -${ballsSpent.toLocaleString()}</p>
+        <p class="result-sub">電サポ抜け後、${spinsAfterSupport}回転消化／使用玉数 -${normalBallsSpent.toLocaleString()}</p>
         <div class="vibun-box rush-box">
           <p class="bonus-main premium">${symbol}${symbol}${symbol}　大当たり</p>
           <p class="bonus-sub">${BONUS_NOMINAL}個（＋${BONUS_ACTUAL}球獲得）</p>
