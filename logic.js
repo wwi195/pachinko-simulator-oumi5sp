@@ -62,8 +62,8 @@ function resolvePattern(cameFromJitanLike) {
 }
 
 // 通常時の1回転。ミスが続き低確率通算回転数が950に達したら遊タイムへ。
-// 遊タイムは1プレイにつき1回のみ（yuutaimuUsedがtrueなら以後は青天井、
-// 二度と遊タイムには入らない）。
+// yuutaimuUsedがtrueの間（遊タイムを消化後、次に大当たりを引くまで）は
+// 950に達しても遊タイムに入らない青天井状態。
 function applyNormalSpin(lowProbSpinCount, yuutaimuUsed = false) {
   const result = spinNormal();
   if (result === 'hit') {

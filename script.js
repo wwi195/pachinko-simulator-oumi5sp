@@ -125,6 +125,7 @@ function resolveHit(fromMode) {
   game.currentSpins = 0;
   game.lastHitSpins = game.totalSpins;
   game.lowProbSpinCount = 0;
+  game.yuutaimuUsed = false; // 大当たりを引いたら青天井は解除、遊タイムの天井を再度有効にする
   game.supportSpinsSinceLastHit = 0;
   game.normalBallsSpentSinceLastHit = 0;
 
@@ -172,7 +173,7 @@ function enterYuutaimu() {
   game.mode = 'yuutaimu';
   game.jitanRemaining = YUUTAIMU_SPINS;
   game.yuutaimuEntryCount++;
-  game.yuutaimuUsed = true; // 遊タイムは1プレイにつき1回のみ。以後は青天井。
+  game.yuutaimuUsed = true; // 次に大当たりを引くまでは青天井（同じ天井での再突入を防止）。
   addLog('低確率950回転消化 → 遊タイム突入！', 'rush');
   setState('yuutaimu_cutin');
 }
