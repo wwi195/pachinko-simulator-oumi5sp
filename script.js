@@ -200,10 +200,6 @@ function handleJitanSpin10() {
 function handleJitanSkip() {
   for (;;) {
     if (runJitanSpin({ silent: true })) return;
-    if (game.jitanRemaining <= 10) {
-      setState('jitan_idle');
-      return;
-    }
   }
 }
 
@@ -503,13 +499,12 @@ function buildScreen(state) {
     }
 
     case 'jitan_idle': {
-      const skipDisabled = game.jitanRemaining <= 10;
       return `<div class="screen">
         <p class="rush-sub">電サポ残り <span>${game.jitanRemaining}</span> 回</p>
         <div class="rush-spin-btns">
           <button class="btn-rush-spin" onclick="handleJitanSpin()">1回転</button>
           <button class="btn-rush-spin" onclick="handleJitanSpin10()">10回転</button>
-          <button class="btn-rush-spin skip" ${skipDisabled ? 'disabled' : 'onclick="handleJitanSkip()"'}>スキップ</button>
+          <button class="btn-rush-spin skip" onclick="handleJitanSkip()">スキップ</button>
         </div>
         <p class="prob-hint">大当たり確率 1/319.6</p>
         <button class="btn-taiten" onclick="handleTaiten()">退店する</button>
