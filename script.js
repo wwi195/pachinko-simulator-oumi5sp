@@ -371,6 +371,7 @@ function render() {
   renderModeBadge();
   renderMainScreen();
   renderRushStats();
+  renderLog();
 }
 
 function renderHeader() {
