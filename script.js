@@ -390,13 +390,17 @@ function renderHeader() {
   document.getElementById('current-spins').textContent = game.currentSpins.toLocaleString();
   document.getElementById('total-spins-disp').textContent = game.totalSpins.toLocaleString();
 
+  const supportLabelEl = document.getElementById('esup-label');
   const supportEl = document.getElementById('rush-count');
   if (game.mode === 'jitan' || game.mode === 'yuutaimu') {
+    supportLabelEl.textContent = '電サポ残り';
     supportEl.textContent = `${game.jitanRemaining}回`;
   } else if (game.mode === 'rush') {
+    supportLabelEl.textContent = '電サポ残り';
     supportEl.textContent = '次回まで';
   } else {
-    supportEl.textContent = '－';
+    supportLabelEl.textContent = '遊タイムまで残り';
+    supportEl.textContent = `${YUUTAIMU_THRESHOLD - game.lowProbSpinCount}回`;
   }
 
   document.getElementById('total-hit-count').textContent = game.totalBonusHits + '回';
