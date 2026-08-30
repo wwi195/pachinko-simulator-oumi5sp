@@ -491,9 +491,15 @@ function buildScreen(state) {
 
     case 'bonus_result': {
       const { interval, symbol, spinsAfterSupport, normalBallsSpent } = game.pending;
+      // spinsAfterSupport===0 means every spin in this interval was under electric
+      // support (the hit landed inside 時短/確変 itself) — showing "電サポ抜け後0回転"
+      // there is meaningless, so show what was actually spent instead (1球/回転).
+      const secondLine = spinsAfterSupport > 0
+        ? `電サポ抜け後、${spinsAfterSupport}回転消化／使用玉数 -${normalBallsSpent.toLocaleString()}`
+        : `消費玉数 -${(interval - spinsAfterSupport).toLocaleString()}`;
       return `<div class="screen">
         <p class="result-sub">${interval}回転で大当たり</p>
-        <p class="result-sub">電サポ抜け後、${spinsAfterSupport}回転消化／使用玉数 -${normalBallsSpent.toLocaleString()}</p>
+        <p class="result-sub">${secondLine}</p>
         <div class="vibun-box rush-box">
           <p class="bonus-main premium">${symbol}${symbol}${symbol}　大当たり</p>
           <p class="bonus-sub">${BONUS_NOMINAL}個（＋${BONUS_ACTUAL}球獲得）</p>
