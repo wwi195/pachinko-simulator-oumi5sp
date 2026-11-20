@@ -202,7 +202,8 @@ function runJitanSpin(opts = {}) {
   }
   if (!opts.silent) {
     addLog(`電サポ残り${remaining}回`);
-    setState('jitan_miss');
+    // 電サポ中の外れは「外れ」画面を出さず、そのまま続けて押せるようにする
+    handleJitanMissContinue();
     return true;
   }
   return false;
@@ -288,7 +289,8 @@ function runYuutaimuSpin(opts = {}) {
   }
   if (!opts.silent) {
     addLog(`遊タイム残り${remaining}回`);
-    setState('yuutaimu_miss');
+    // 遊タイム中の外れは「外れ」画面を出さず、そのまま続けて押せるようにする
+    handleYuutaimuMissContinue();
     return true;
   }
   return false;
